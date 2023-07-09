@@ -6,12 +6,12 @@
 {% block content %}
   <form method="post" class="p-4 m-4 bg-light border border-success rounded form-group">
     {% csrf_token %}
-    <input type="text" name="username" class="form-control mt-4" placeholder="ユーザー ID">
-    <input type="password" name="password1" class="form-control mt-4" placeholder="パスワード">
-    <input type="password" name="password2" class="form-control mt-4" placeholder="パスワード確認用">
-    {% if form.errors %}
-      <span class="mb-2 small text-danger d-block text-start">利用できないユーザー ID やパスワードの可能性があります。入力内容を再度ご確認ください。</span>
-    {% endif %}
+    {{ form.as_p }}
+    {% for field in form %}
+      {% if field.errors %}
+        <span class="mb-2 small text-danger d-block text-start">{{ field.errors|join:", " }}</span>
+      {% endif %}
+    {% endfor %}
     <button type="submit" class="btn btn-success m-2">アカウント作成</button>
   </form>
 {% endblock %}
