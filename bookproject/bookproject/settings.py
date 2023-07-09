@@ -143,7 +143,7 @@ LOGOUT_REDIRECT_URL = 'index'
 
 AUTH_USER_MODEL = 'accounts.customuser'
 
-# AUTHENTICATION_BACKENDS = [
-#     'bookproject.backends.CustomAuthenticationBackend',
-#     'django.contrib.auth.backends.ModelBackend',
-# ]
+AUTHENTICATION_BACKENDS = [
+    'bookproject.backends.CustomAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]

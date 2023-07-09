@@ -1,20 +1,21 @@
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login
 from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import SignUpForm
+from bookproject.backends import CustomAuthenticationBackend
+from .forms import SignUpForm, CustomAuthenticationForm
 
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
+            email = form.cleaned_data.get('email')
             raw_password = form.cleaned_data.get('password1')
             user.set_password(raw_password)
             user.save()
 
-            email = form.cleaned_data.get('email')
-            user = authenticate(request, email=email, password=raw_password)
+            user = CustomAuthenticationBackend().authenticate(request, username=email, password=raw_password)
             if user is not None:
+                user.backend = 'bookproject.backends.CustomAuthenticationBackend'
                 login(request, user)
                 return redirect('index')
     else:
@@ -23,13 +24,15 @@ def signup(request):
 
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST['email']
-        password = request.POST['password']
-        user = authenticate(request, email=email, password=password)
-        print(user)
-        if user is not None:
-            login(request, user)
-            return redirect('index')
-        else:
-            messages.error(request, '無効なメールアドレスまたはパスワードです。')
-    return render(request, 'accounts/login.html')
+        form = CustomAuthenticationForm(data=request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            raw_password = form.cleaned_data.get('password')
+            user = CustomAuthenticationBackend().authenticate(request, username=email, password=raw_password)
+            if user is not None:
+                user.backend = 'bookproject.backends.CustomAuthenticationBackend'
+                login(request, user)
+                return redirect('index')
+    else:
+        form = CustomAuthenticationForm()
+    return render(request, 'accounts/login.html', {'form': form})
